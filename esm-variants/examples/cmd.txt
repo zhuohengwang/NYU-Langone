@@ -1,0 +1,7 @@
+pip3 install tqdm numpy pandas biopython torch fair-esm
+
+python esm_score_missense_mutations.py --input-fasta-file ./examples/example.fasta --output-csv-file ./examples/esm_scores.csv
+
+python esm_score_multi_residue_mutations.py --input-csv-file ./examples/example.csv --output-csv-file ./examples/esm_multi_residue_scores.csv
+
+python esm_score_missense_mutations.py --input-fasta-file ./examples/SPAST.fasta --output-csv-file ./examples/SPAST.csv
