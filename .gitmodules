@@ -1,0 +1,6 @@
+[submodule "esm-varients"]
+	path = esm-varients
+	url = https://github.com/ntranoslab/esm-variants
+[submodule "esm-variants"]
+	path = esm-variants
+	url = ./esm-variants
