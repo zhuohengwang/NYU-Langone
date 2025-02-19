@@ -1,0 +1,3 @@
+pip3 install tqdm numpy pandas biopython torch fair-esm
+
+python esm_score_missense_mutations.py --input-fasta-file ./pseudo_benchmark/uniprot_sprot.fasta --output-csv-file ./pseudo_benchmark/uniprot_sprot_esm_scores.csv
