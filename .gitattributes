@@ -3,3 +3,4 @@
 esm-variants/pseudo_benchmark/uniprot_sprot.fasta* filter=lfs diff=lfs merge=lfs -text
 esm-variants/pseudo_benchmark/uniprot_sprot.fasta*git filter=lfs diff=lfs merge=lfs -text
 add filter=lfs diff=lfs merge=lfs -text
+esm-variants/pseudo_benchmark/uniprot_sprot.fasta.gz filter=lfs diff=lfs merge=lfs -text
