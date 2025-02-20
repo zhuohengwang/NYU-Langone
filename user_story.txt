@@ -1,0 +1,20 @@
+(constrain: Langone project is heavily theoretical)
+
+As a DNA scientific specialist, I want the protein-to-DNA conversion to gain cross-references from protein study.
+Criteria:
+1. The accuracy of protein analysis > 95%
+2. The domain of protein LLM covers some non-coding DNA.
+3. Both protein and DNA scientists can explain the result.
+
+As a clinical geneticist, I want the probability of genetic mutation to make diagonsis and avoid risks.
+Criteria:
+1. The system could recognize mainstream genetic diseases w.r.t. protein mutation with accuracy > 95%
+2. The system should allow user to input their genetic data and provide analysis.
+3. Provide clinical report s.t. medical analysists could rely on it.
+
+As an academic researcher, I want the costless reproducibility s.t. people could verify and replicate our work academically.
+Criteria:
+1. The data source, workflow, platform and users are all available academically.
+2. The result of any replicate should have negligible difference compared to this product.
+3. Any academic progress based on this project are able to inherit the academic properties of this project.
+ 

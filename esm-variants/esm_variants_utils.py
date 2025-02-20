@@ -36,7 +36,6 @@ def get_wt_LLR(input_df,model,alphabet,batch_converter,device=0,silent=False):
       WTlogits = pd.DataFrame(results_[0,:,:].cpu().numpy()[1:-1,:],columns=alphabet.all_toks,index=list(input_df[input_df.id==gname].seq.values[0])).T.iloc[4:24].loc[AAorder]
       WTlogits.columns = [j.split('.')[0]+' '+str(i+1) for i,j in enumerate(WTlogits.columns)]
 
-
       # skip unrecognized amino acid
       split_columns = [i.split(' ')[0] for i in WTlogits.columns]
       if not all(element in AAorder for element in split_columns):
