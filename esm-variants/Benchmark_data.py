@@ -10,6 +10,8 @@ import numpy as np
 from Bio import SeqIO
 from tqdm import tqdm
 
+import subprocess
+
 
 # In[2]:
 
@@ -51,7 +53,11 @@ print(preprocessed_dataset_length)
 # In[5]:
 
 
-get_ipython().system('python esm_score_missense_mutations.py --input-fasta-file ./uniprot_dataset/preprocessed_uniprot_sprot.fasta --output-csv-file ./uniprot_dataset/preprocessed_uniprot_sprot_esm_scores.csv')
+subprocess.run([
+    "python", "esm_score_missense_mutations.py",
+    "--input-fasta-file", "./uniprot_dataset/preprocessed_uniprot_sprot.fasta",
+    "--output-csv-file", "./uniprot_dataset/preprocessed_uniprot_sprot_esm_scores.csv"
+], check=True)
 
 
 # In[6]:
