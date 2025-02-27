@@ -51,7 +51,7 @@ print(preprocessed_dataset_length)
 # In[5]:
 
 
-#!python esm_score_missense_mutations.py --input-fasta-file ./uniprot_dataset/preprocessed_uniprot_sprot.fasta --output-csv-file ./uniprot_dataset/preprocessed_uniprot_sprot_esm_scores.csv
+get_ipython().system('python esm_score_missense_mutations.py --input-fasta-file ./uniprot_dataset/preprocessed_uniprot_sprot.fasta --output-csv-file ./uniprot_dataset/preprocessed_uniprot_sprot_esm_scores.csv')
 
 
 # In[6]:
