@@ -21,6 +21,7 @@ benchmark_path = r'./benchmarks/ClinVar_gnomAD_benchmark_with_predictions.csv'
 dataset_path = r'./uniprot_dataset/uniprot_sprot.fasta'
 preprocessed_dataset_path = r'./uniprot_dataset/preprocessed_uniprot_sprot.fasta'
 preprocessed_score_path = r'./uniprot_dataset/preprocessed_uniprot_sprot_esm_scores.csv'
+reproduced_df_path = r'./uniprot_dataset/reproduced_df.csv'
 
 
 # In[3]:
@@ -31,14 +32,14 @@ other_score_columns = benchmark_df.columns[7:25]
 benchmark_df = benchmark_df[benchmark_df[other_score_columns].notna().sum(axis=1) > 0]
 benchmark_df = benchmark_df[['uniprot_id', 'aa_change', 'ESM1b_score']]
 
-benchmark_df.to_csv(r'./uniprot_dataset/benchmark_df.csv')
+benchmark_df.to_csv(r'./uniprot_dataset/benchmark_df.csv', index=False)
 print(len(benchmark_df))
 
 uniprot_id_list = list(dict.fromkeys(benchmark_df['uniprot_id'].tolist()))
 benchmark_df.head()
 
 
-# In[4]:
+# In[ ]:
 
 
 with open(preprocessed_dataset_path, "w") as out_file:
@@ -56,7 +57,7 @@ preprocessed_dataset_length = sum(1 for _ in SeqIO.parse(preprocessed_dataset_pa
 print(preprocessed_dataset_length)
 
 
-# In[5]:
+# In[ ]:
 
 
 if not Path(preprocessed_score_path).is_file():
@@ -67,19 +68,28 @@ if not Path(preprocessed_score_path).is_file():
     ], check=True)
 
 
-# In[ ]:
+# In[11]:
 
 
-preprocessed_dataset_df = pd.read_csv(preprocessed_score_path)
+if not Path(reproduced_df_path).is_file():
+    preprocessed_dataset_df = pd.read_csv(preprocessed_score_path)
+    
+    reproduced_df = preprocessed_dataset_df[
+        preprocessed_dataset_df[['seq_id', 'mut_name']].apply(tuple, axis=1).isin(
+            benchmark_df[['uniprot_id', 'aa_change']].apply(tuple, axis=1)
+        )
+    ]
+else:
+    reproduced_df = pd.read_csv(reproduced_df_path)
 
-#reproduced_df = preprocessed_dataset_df[preprocessed_dataset_df.set_index(['seq_id', 'mut_name']).index.isin(benchmark_df.set_index(['uniprot_id', 'aa_change']).index)]
-reproduced_df_filtered = preprocessed_dataset_df[
-    preprocessed_dataset_df[['seq_id', 'mut_name']].apply(tuple, axis=1).isin(
-        benchmark_df[['uniprot_id', 'aa_change']].apply(tuple, axis=1)
-    )
-]
+reproduced_df = reproduced_df.set_index(['seq_id', 'mut_name']).reindex(
+    benchmark_df.set_index(['uniprot_id', 'aa_change']).index, 
+    fill_value=None
+).reset_index().rename(columns={'uniprot_id': 'seq_id', 'aa_change': 'mut_name'})[['seq_id', 'mut_name', 'esm_score']].dropna(subset=['esm_score'])
 
-reproduced_df.to_csv(r'./uniprot_dataset/reproduced_df.csv')
+
+print(len(reproduced_df))
+reproduced_df.to_csv(reproduced_df_path, index=False)
 
 
 # In[ ]:
