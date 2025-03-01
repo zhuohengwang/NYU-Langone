@@ -75,6 +75,9 @@ print(preprocessed_dataset_length)
 
 
 for model_pretrained, model_dict in reproduced_dict.items():
+    if Path(model_dict['score_path']).is_file():
+        print(f"{model_dict['name']} already has score")
+        continue
     subprocess.run([
         "python", "esm_score_missense_mutations.py",
         "--input-fasta-file", preprocessed_dataset_path,
@@ -86,7 +89,7 @@ for model_pretrained, model_dict in reproduced_dict.items():
 # In[5]:
 
 
-model_df_list = []
+merge_df = None
 for model_pretrained, model_dict in reproduced_dict.items():
     score_df = pd.read_csv(model_dict['score_path'])
 
@@ -106,9 +109,12 @@ for model_pretrained, model_dict in reproduced_dict.items():
     )[['seq_id', 'mut_name', model_dict['name'] + '_score']].dropna(subset=[model_dict['name'] + '_score'])
 
     print(len(reproduced_df))
-    model_df_list.append(reproduced_df)
+    if merge_df is None:
+        merge_df = reproduced_df
+    else:
+        merge_df = pd.merge(merge_df, reproduced_df, on=['seq_id', 'mut_name'], how='inner')
 
-merge_df = reduce(lambda left, right: pd.merge(left, right, on=['seq_id', 'mut_name'], how='inner'), model_df_list)
+# merge_df = reduce(lambda left, right: pd.merge(left, right, on=['seq_id', 'mut_name'], how='inner'), model_df_list)
 merge_df.to_csv(reproduced_df_path, index=False)
 
 
