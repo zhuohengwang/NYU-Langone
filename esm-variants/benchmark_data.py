@@ -24,14 +24,21 @@ preprocessed_dataset_path = r'./uniprot_dataset/preprocessed_uniprot_sprot.fasta
 
 # note: all models below have 33 layers and 650M params
 reproduced_dict = {'esm1b_t33_650M_UR50S' : {'name' : 'ESM1b',
-                                             'score_path' : r'./uniprot_dataset/ESM1b_reproduced_score.csv'
+                                             'score_path' : r'./uniprot_dataset/ESM1b_reproduced_score.csv',
+                                             'calculator' : r'esm_score_missense_mutations.py'
                                             },
                    'esm1v_t33_650M_UR90S_1' : {'name' : 'ESM1v-1',
-                                               'score_path' : r'./uniprot_dataset/ESM1v-1_reproduced_score.csv'
+                                               'score_path' : r'./uniprot_dataset/ESM1v-1_reproduced_score.csv',
+                                               'calculator' : r'esm_score_missense_mutations.py'
                                               },
                    'esm2_t33_650M_UR50D' : {'name' : 'ESM2',
-                                            'score_path' : r'./uniprot_dataset/ESM2_reproduced_score.csv'
-                                           }
+                                            'score_path' : r'./uniprot_dataset/ESM2_reproduced_score.csv',
+                                            'calculator' : r'esm_score_missense_mutations.py'
+                                           },
+                   'bert-base-uncased' : {'name' : 'prot-bert',
+                                          'score_path' : r'./uniprot_dataset/prot-bert_reproduced_score.csv',
+                                          'calculator' : r'prot_bert_score_missense_mutations.py'
+                                         }
                   }
 reproduced_df_path = r'./uniprot_dataset/reproduced_df.csv'
 
@@ -79,7 +86,7 @@ for model_pretrained, model_dict in reproduced_dict.items():
         print(f"{model_dict['name']} already has score")
         continue
     subprocess.run([
-        "python", "esm_score_missense_mutations.py",
+        "python", model_dict['calculator'],
         "--input-fasta-file", preprocessed_dataset_path,
         "--output-csv-file", model_dict['score_path'],
         "--model-name", model_pretrained,
