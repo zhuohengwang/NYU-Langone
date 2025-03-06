@@ -35,9 +35,9 @@ reproduced_dict = {'esm1b_t33_650M_UR50S' : {'name' : 'ESM1b',
                                             'score_path' : r'./uniprot_dataset/ESM2_reproduced_score.csv',
                                             'calculator' : r'esm_score_missense_mutations.py'
                                            },
-                   'bert-base-uncased' : {'name' : 'prot-bert',
+                   'Rostlab/prot_bert' : {'name' : 'prot-bert',
                                           'score_path' : r'./uniprot_dataset/prot-bert_reproduced_score.csv',
-                                          'calculator' : r'prot_bert_score_missense_mutations.py'
+                                          'calculator' : r'prot-bert_score_missense_mutations.py'
                                          }
                   }
 reproduced_df_path = r'./uniprot_dataset/reproduced_df.csv'
