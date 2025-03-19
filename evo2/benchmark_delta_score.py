@@ -4,13 +4,38 @@
 # In[ ]:
 
 
+import pysam
+from Bio import SeqIO
 import torch
-import pandas as pd
-from tqdm import tqdm
 from evo2 import Evo2
+from tqdm import tqdm
+import pandas as pd
+
+# Load the reference genome
+reference_genome = SeqIO.index("./hg38_dataset/hg38.fa", "fasta")
 
 # Load the evo2 model
 evo2_model = Evo2('evo2_7b')
+device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+evo2_model.to(device)
+
+def get_sequence(chrom, pos, ref, alt, window_size=512):
+    """
+    Extract a sequence window centered at the variant position.
+    """
+    start = pos - 1 - (window_size // 2)  # Convert to 0-based index
+    end = start + window_size
+    
+    try:
+        ref_sequence = str(reference_genome[chrom].seq[start:end])
+        alt_sequence = ref_sequence[:window_size // 2] + alt + ref_sequence[window_size // 2 + len(ref):]
+        return ref_sequence, alt_sequence
+    except KeyError:
+        print(f"Warning: Chromosome '{chrom}' not found in reference genome. Skipping variant.")
+        return None, None
+    except IndexError:
+        print(f"Warning: Position {pos} is out of bounds for chromosome '{chrom}'. Skipping variant.")
+        return None, None
 
 def compute_delta_score(ref_sequence, alt_sequence, ref, alt):
     """
@@ -47,45 +72,62 @@ def compute_delta_score(ref_sequence, alt_sequence, ref, alt):
     delta_score = (alt_log_prob - ref_log_prob).item()
     return delta_score
 
-def compute_delta_scores(preprocessed_csv, output_path):
+def calculate_and_save_delta_scores(vcf_path, output_path):
     """
-    Compute delta scores for preprocessed data and save to a CSV file.
+    Calculate delta scores for all variants in the VCF file and save to a CSV file.
     """
-    # Load preprocessed data
-    preprocessed_df = pd.read_csv(preprocessed_csv)
+    # Open the VCF file
+    vcf_reader = pysam.VariantFile(vcf_path)
+    total_records = sum(1 for _ in vcf_reader)
+    vcf_reader = pysam.VariantFile(vcf_path)
     
-    # Compute delta scores
-    results = []
+    delta_scores = []
+    labels = []
     
-    for _, row in tqdm(preprocessed_df.iterrows(), desc="Computing delta scores", total=len(preprocessed_df)):
-        chrom = row["chrom"]
-        pos = row["pos"]
-        ref = row["ref"]
-        alt = row["alt"]
-        ref_sequence = row["ref_sequence"]
-        alt_sequence = row["alt_sequence"]
+    for record in tqdm(vcf_reader, total = total_records, desc="Processing variants"):
+        chrom = record.chrom
+        pos = record.pos
+        ref = record.ref
+        alts = record.alts
+        
+        # Skip if there are multiple alternate alleles
+        if len(alts) != 1:
+            continue
+        
+        alt = alts[0]
+        
+        # Get reference and alternate sequences
+        ref_sequence, alt_sequence = get_sequence(chrom, pos, ref, alt)
+        
+        # Skip if sequences could not be extracted
+        if ref_sequence is None or alt_sequence is None:
+            continue
         
         # Compute delta score
         delta_score = compute_delta_score(ref_sequence, alt_sequence, ref, alt)
+        delta_scores.append(delta_score)
         
-        results.append({
-            "chrom": chrom,
-            "pos": pos,
-            "ref": ref,
-            "alt": alt,
-            "delta_score": delta_score
-        })
+        # Extract label (assuming the label is in the INFO field as a float)
+        label_value = float(record.info.get("INFO"))  # Replace "INFO" with the actual key
+        labels.append(label_value)
     
-    # Convert results to DataFrame
-    results_df = pd.DataFrame(results)
-    
-    # Save results to a CSV file
+    # Save delta scores and labels to a CSV file
+    results_df = pd.DataFrame({
+        "delta_score": delta_scores,
+        "label": labels
+    })
     results_df.to_csv(output_path, index=False)
-    print(f"Delta scores computed. Results saved to '{output_path}'.")
+    print(f"Delta scores saved to '{output_path}'.")
 
-# Compute delta scores for coding variants
-compute_delta_scores("./hg38_dataset/Preprocessed_coding.csv", "./hg38_dataset/DeltaScores_coding.csv")
+# Calculate and save delta scores for coding variants
+calculate_and_save_delta_scores(
+    "./benchmark/ClinVar_Coding_SNV_PB.vcf", 
+    "./hg38_dataset/DeltaScores_coding.csv"
+)
 
-# Compute delta scores for noncoding variants
-compute_delta_scores("./hg38_dataset/Preprocessed_noncoding.csv", "./hg38_dataset/DeltaScores_noncoding.csv")
+# Calculate and save delta scores for noncoding variants
+calculate_and_save_delta_scores(
+    "./benchmark/ClinVar_NonCoding_SNV_PB.vcf", 
+    "./hg38_dataset/DeltaScores_noncoding.csv"
+)
 
