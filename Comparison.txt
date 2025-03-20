@@ -1,0 +1,6 @@
+DNABERT Model 1: Suitable for fundamental sequence-based tasks such as DNA classification and motif discovery.
+
+DNABERT Model 2: Preferred for more complex genomic tasks requiring better generalization and efficiency.
+
+DNABERT Model 2 is an improved version of DNABERT Model 1, offering better tokenization, efficiency, and performance for various DNA sequence analysis tasks. While Model 1 remains useful for basic applications, Model 2 provides greater accuracy and is optimized for large-scale genomic research.
+
