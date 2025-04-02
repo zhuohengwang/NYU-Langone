@@ -17,7 +17,6 @@ reference_genome = SeqIO.index("./hg38_dataset/hg38.fa", "fasta")
 # Load the evo2 model
 evo2_model = Evo2('evo2_7b')
 device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
-evo2_model.to(device)
 
 def get_sequence(chrom, pos, ref, alt, window_size=512):
     """
@@ -85,7 +84,7 @@ def calculate_and_save_delta_scores(vcf_path, output_path):
     labels = []
     
     for record in tqdm(vcf_reader, total = total_records, desc="Processing variants"):
-        chrom = record.chrom
+        chrom = "chr" + record.chrom
         pos = record.pos
         ref = record.ref
         alts = record.alts
