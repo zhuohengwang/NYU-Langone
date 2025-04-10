@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?><process version="10.5.000">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="10.5.000" expanded="true" name="Process">
+    <parameter key="logverbosity" value="init"/>
+    <parameter key="random_seed" value="2001"/>
+    <parameter key="send_mail" value="never"/>
+    <parameter key="notification_email" value=""/>
+    <parameter key="process_duration_for_mail" value="30"/>
+    <parameter key="encoding" value="SYSTEM"/>
+    <process expanded="true">
+      <operator activated="true" class="retrieve" compatibility="10.5.000" expanded="true" height="68" name="Retrieve trip_advisor_2000_hw3" width="90" x="45" y="187">
+        <parameter key="repository_entry" value="//Local Repository/data/trip_advisor_2000_hw3"/>
+      </operator>
+      <operator activated="true" class="subprocess" compatibility="10.5.000" expanded="true" height="103" name="Subprocess" width="90" x="179" y="187">
+        <process expanded="true">
+          <operator activated="true" class="blending:set_role" compatibility="10.5.000" expanded="true" height="82" name="Set Role (2)" width="90" x="112" y="238">
+            <list key="set_roles">
+              <parameter key="review_rating" value="label"/>
+            </list>
+          </operator>
+          <operator activated="true" class="blending:split_data" compatibility="10.5.000" expanded="true" height="103" name="Split Data" width="90" x="313" y="238">
+            <enumeration key="partitions">
+              <parameter key="ratio" value="0.8"/>
+              <parameter key="ratio" value="0.2"/>
+            </enumeration>
+            <parameter key="sampling_type" value="automatic"/>
+            <parameter key="use_local_random_seed" value="false"/>
+            <parameter key="local_random_seed" value="1992"/>
+          </operator>
+          <connect from_port="in 1" to_op="Set Role (2)" to_port="example set input"/>
+          <connect from_op="Set Role (2)" from_port="example set output" to_op="Split Data" to_port="example set"/>
+          <connect from_op="Split Data" from_port="partition 1" to_port="out 1"/>
+          <connect from_op="Split Data" from_port="partition 2" to_port="out 2"/>
+          <portSpacing port="source_in 1" spacing="0"/>
+          <portSpacing port="source_in 2" spacing="0"/>
+          <portSpacing port="sink_out 1" spacing="0"/>
+          <portSpacing port="sink_out 2" spacing="0"/>
+          <portSpacing port="sink_out 3" spacing="0"/>
+        </process>
+      </operator>
+      <operator activated="true" class="generative_models:download_model" compatibility="2.1.001" expanded="true" height="82" name="Download Model" width="90" x="179" y="85">
+        <parameter key="model" value="nlptown/bert-base-multilingual-uncased-sentiment"/>
+        <parameter key="type" value="text classification"/>
+        <parameter key="storage_type" value="Project Folder"/>
+        <parameter key="project_folder" value="modelhw3"/>
+        <parameter key="data_type" value="auto"/>
+        <parameter key="revision" value="main"/>
+        <parameter key="conda_environment" value="rm_genai"/>
+      </operator>
+      <operator activated="true" class="generative_models:finetune_text_classification" compatibility="2.1.001" expanded="true" height="82" name="Finetune Text Classification" width="90" x="380" y="34">
+        <parameter key="storage_type" value="Project Folder"/>
+        <parameter key="project_folder" value="modelhw3/"/>
+        <parameter key="input_column" value="review_content"/>
+        <parameter key="target_column" value="review_rating"/>
+        <parameter key="max_input_tokens" value="256"/>
+        <parameter key="epochs" value="5"/>
+        <parameter key="device" value="GPU"/>
+        <parameter key="device_indices" value="0"/>
+        <parameter key="finetuning_mode" value="Full"/>
+        <parameter key="lora_r" value="8"/>
+        <parameter key="lora_alpha" value="8"/>
+        <parameter key="lora_dropout" value="0.0"/>
+        <parameter key="target_modules_mode" value="None"/>
+        <parameter key="quantization" value="Off"/>
+        <parameter key="16_bit_precision" value="false"/>
+        <parameter key="prep_threads" value="1"/>
+        <parameter key="batch_size" value="8"/>
+        <parameter key="gradient_accumulation_steps" value="1"/>
+        <parameter key="train_test_ratio" value="0.3"/>
+        <parameter key="learning_rate" value="3.0E-5"/>
+        <parameter key="conda_environment" value="rm_genai"/>
+      </operator>
+      <operator activated="true" class="generative_models:text_classification" compatibility="2.1.001" expanded="true" height="82" name="Text Classification" width="90" x="447" y="238">
+        <parameter key="use_local_model" value="true"/>
+        <parameter key="name" value="pred_rating"/>
+        <parameter key="prompt" value="[[review_content]]"/>
+        <parameter key="device" value="GPU"/>
+        <parameter key="device_indices" value="0"/>
+        <parameter key="data_type" value="auto"/>
+        <parameter key="revision" value="main"/>
+        <parameter key="trust_remote_code" value="false"/>
+        <parameter key="conda_environment" value="rm_genai"/>
+      </operator>
+      <operator activated="true" class="blending:set_role" compatibility="10.5.000" expanded="true" height="82" name="Set Role" width="90" x="581" y="187">
+        <list key="set_roles">
+          <parameter key="rest_rating" value="label"/>
+          <parameter key="pred_rating" value="prediction"/>
+        </list>
+      </operator>
+      <operator activated="true" class="performance_classification" compatibility="10.5.000" expanded="true" height="82" name="Performance" width="90" x="715" y="238">
+        <parameter key="main_criterion" value="first"/>
+        <parameter key="accuracy" value="true"/>
+        <parameter key="classification_error" value="false"/>
+        <parameter key="kappa" value="false"/>
+        <parameter key="weighted_mean_recall" value="false"/>
+        <parameter key="weighted_mean_precision" value="false"/>
+        <parameter key="spearman_rho" value="false"/>
+        <parameter key="kendall_tau" value="false"/>
+        <parameter key="absolute_error" value="false"/>
+        <parameter key="relative_error" value="false"/>
+        <parameter key="relative_error_lenient" value="false"/>
+        <parameter key="relative_error_strict" value="false"/>
+        <parameter key="normalized_absolute_error" value="false"/>
+        <parameter key="root_mean_squared_error" value="false"/>
+        <parameter key="root_relative_squared_error" value="false"/>
+        <parameter key="squared_error" value="false"/>
+        <parameter key="correlation" value="false"/>
+        <parameter key="squared_correlation" value="false"/>
+        <parameter key="cross-entropy" value="false"/>
+        <parameter key="margin" value="false"/>
+        <parameter key="soft_margin_loss" value="false"/>
+        <parameter key="logistic_loss" value="false"/>
+        <parameter key="skip_undefined_labels" value="true"/>
+        <parameter key="use_example_weights" value="true"/>
+        <list key="class_weights"/>
+      </operator>
+      <connect from_op="Retrieve trip_advisor_2000_hw3" from_port="output" to_op="Subprocess" to_port="in 1"/>
+      <connect from_op="Subprocess" from_port="out 1" to_op="Finetune Text Classification" to_port="data"/>
+      <connect from_op="Subprocess" from_port="out 2" to_op="Text Classification" to_port="data"/>
+      <connect from_op="Download Model" from_port="model" to_op="Finetune Text Classification" to_port="model"/>
+      <connect from_op="Finetune Text Classification" from_port="model" to_op="Text Classification" to_port="model"/>
+      <connect from_op="Text Classification" from_port="data" to_op="Set Role" to_port="example set input"/>
+      <connect from_op="Set Role" from_port="example set output" to_op="Performance" to_port="labelled data"/>
+      <connect from_op="Performance" from_port="performance" to_port="result 1"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+      <portSpacing port="sink_result 2" spacing="0"/>
+    </process>
+  </operator>
+</process>
