@@ -81,7 +81,8 @@ def calculate_and_save_delta_scores(vcf_path, output_path):
     vcf_reader = pysam.VariantFile(vcf_path)
     
     delta_scores = []
-    labels = []
+    chroms = []
+    pos_list = []
     
     for record in tqdm(vcf_reader, total = total_records, desc="Processing variants"):
         chrom = "chr" + record.chrom
@@ -105,28 +106,28 @@ def calculate_and_save_delta_scores(vcf_path, output_path):
         # Compute delta score
         delta_score = compute_delta_score(ref_sequence, alt_sequence, ref, alt)
         delta_scores.append(delta_score)
-        
-        # Extract label (assuming the label is in the INFO field as a float)
-        label_value = float(record.info.get("INFO"))  # Replace "INFO" with the actual key
-        labels.append(label_value)
+
+        chroms.append(record.chrom)
+        pos_list.append(record.pos)
     
     # Save delta scores and labels to a CSV file
     results_df = pd.DataFrame({
-        "delta_score": delta_scores,
-        "label": labels
+        "chrom": chroms,
+        "pos": pos_list,
+        "delta_score": delta_scores
     })
     results_df.to_csv(output_path, index=False)
     print(f"Delta scores saved to '{output_path}'.")
+
+# Calculate and save delta scores for noncoding variants
+calculate_and_save_delta_scores(
+    "./benchmark/ClinVar_NonCoding_SNV_PB.filtered.vcf", 
+    "./hg38_dataset/DeltaScores_noncoding.csv"
+)
 
 # Calculate and save delta scores for coding variants
 calculate_and_save_delta_scores(
     "./benchmark/ClinVar_Coding_SNV_PB.vcf", 
     "./hg38_dataset/DeltaScores_coding.csv"
-)
-
-# Calculate and save delta scores for noncoding variants
-calculate_and_save_delta_scores(
-    "./benchmark/ClinVar_NonCoding_SNV_PB.vcf", 
-    "./hg38_dataset/DeltaScores_noncoding.csv"
 )
 

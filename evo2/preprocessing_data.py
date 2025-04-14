@@ -12,7 +12,7 @@ from tqdm import tqdm
 # Load the reference genome
 reference_genome = SeqIO.index("./hg38_dataset/hg38.fa", "fasta")
 
-def get_sequence(chrom, pos, ref, alt, window_size=512):
+def get_sequence(chrom, pos, ref, alt, window_size=8192): #previously was 512
     """
     Extract a sequence window centered at the variant position.
     """
@@ -51,17 +51,23 @@ def preprocessing_data(vcf_reader, output_path, total_records):
     # Save preprocessed data to a CSV file
     preprocessed_df.to_csv(output_path, index=False)
 
-    print("Preprocessing complete. Data saved to 'preprocessed_data.csv'.")
+    print(f"Preprocessed {total_records} records. Data saved to {output_path}.")
 
-vcf_file = "./benchmark/ClinVar_Coding_SNV_PB.vcf"
+#vcf_file = "./benchmark/ClinVar_Coding_SNV_PB.vcf"
+#vcf_reader = pysam.VariantFile(vcf_file)
+#total_records = sum(1 for _ in vcf_reader)
+#vcf_reader = pysam.VariantFile(vcf_file)
+#preprocessing_data(vcf_reader, "./hg38_dataset/Preprocessed_coding.csv", total_records)
+
+#vcf_file = "./benchmark/ClinVar_NonCoding_SNV_PB.filtered.vcf"
+#vcf_reader = pysam.VariantFile(vcf_file)
+#total_records = sum(1 for _ in vcf_reader)
+#vcf_reader = pysam.VariantFile(vcf_file)
+#preprocessing_data(vcf_reader, "./hg38_dataset/Preprocessed_noncoding.csv", total_records)
+
+vcf_file = "./benchmark/ClinVar_benchmark_all.vcf"
 vcf_reader = pysam.VariantFile(vcf_file)
 total_records = sum(1 for _ in vcf_reader)
 vcf_reader = pysam.VariantFile(vcf_file)
-preprocessing_data(vcf_reader, "./hg38_dataset/Preprocessed_coding.csv", total_records)
-
-vcf_file = "./benchmark/ClinVar_NonCoding_SNV_PB.vcf"
-vcf_reader = pysam.VariantFile(vcf_file)
-total_records = sum(1 for _ in vcf_reader)
-vcf_reader = pysam.VariantFile(vcf_file)
-preprocessing_data(vcf_reader, "./hg38_dataset/Preprocessed_noncoding.csv", total_records)
+preprocessing_data(vcf_reader, "./hg38_dataset/Preprocessed_all.csv", total_records)
 
