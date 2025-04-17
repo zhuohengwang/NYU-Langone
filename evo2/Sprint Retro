@@ -1,0 +1,33 @@
+-- Things going well
+Baiyu:
+Communication was smooth
+Good planning on fallback options for limited compute
+Xinge:
+Solid understanding of Evo2 model architecture formed
+Prof. Nadav agreed to fund us
+Xueshen:
+GitHub issues and task tracking were well-maintained
+DNAbert2 results were cleaner and easier to interpret
+Zhuoheng:
+Good collaboration and discussions during model evaluation
+Successfully ran side-by-side comparisons of NT and DNAbert2
+
+-- Things not going well
+Baiyu:
+Lack of access to a powerful GPU slowed experiments
+Confusion over NT model configuration used for comparison
+Xinge:
+Solid understanding of Evo2 model architecture formed
+Lack of access to a powerful GPU slowed experiments
+Xueshen:
+Delayed alignment on Evo2 model fine-tuning strategy
+Didn’t benchmark Evo2 performance under minimal conditions
+Zhuoheng:
+Wasted time troubleshooting scripts on underpowered machine
+Fail to benchmark Evo2 performance on our current limited hardware setup
+
+-- How to improve
+Create a checklist for model comparison runs
+Identify shared cloud resources we can borrow short-term
+Track GPU usage vs. model runtime for cost projection
+Finalize Evo2 model environment setup once new machine is approved
