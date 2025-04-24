@@ -1,0 +1,7 @@
+For our methodology, we adopt a zero-shot prediction approach using a pretrained protein language model. This means we do not fine-tune the model on mutation-specific data, but directly use it to evaluate mutation impact.
+
+The evaluation is based on a given benchmark dataset of labeled variants, where each mutation is annotated as either pathogenic or benign.
+
+We calculate scores such as log-likelihood ratio (LLR) or delta_score, which reflect how the model perceives the sequence likelihood before and after mutation. These scores are used to rank the variants.
+
+Finally, we compute the Area Under the Curve (AUC) to assess how well the model distinguishes pathogenic from benign variants. A higher AUC indicates better discrimination capability.
